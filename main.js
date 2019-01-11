@@ -6,11 +6,12 @@ class Block {
         this.timestamp = timestamp;
         this.data = data;
         this.prevHash = prevHash;
-        this.hash = this.calculateHash;
+        this.hash = this.calculateHash();
     }
 
     calculateHash(){
-       return SHA256(this.index + this.prevHash + this.timestamp + JSON.stringify(this.data)).toString;
+       return SHA256(this.index + this.prevHash + this.timestamp + JSON.stringify(this.data)).toString();
+
     }
 }
 
@@ -32,6 +33,23 @@ class Blockchain {
         newBlock.hash = newBlock.calculateHash();
         this.chain.push(newBlock);
     }
+
+    isChainValid(){
+        for(let i = 1; i < this.chain.length; i++){
+            const currentBlock = this.chain[i];
+            const prevBlock = this.chain[i - 1];
+
+            if(currentBlock.hash !== currentBlock.calculateHash()){
+                return false;
+            }
+
+            if(currentBlock.prevHash !== prevBlock.hash){
+                return false;
+            }
+        }
+
+        return true;
+    }
 }
 
 let sahilCoin = new Blockchain();
@@ -39,3 +57,9 @@ sahilCoin.addBlock(new Block(1, "02/01/1996", { amount: 5}));
 sahilCoin.addBlock(new Block(2, "04/01/1996", { amount: 1}));
 
 console.log(JSON.stringify(sahilCoin,null,4));
+
+console.log("--------------------");
+console.log("is blockchain valid?" + sahilCoin.isChainValid());
+
+sahilCoin.chain[1].data = {amount: 100};
+console.log("is blockchain valid?" + sahilCoin.isChainValid());
